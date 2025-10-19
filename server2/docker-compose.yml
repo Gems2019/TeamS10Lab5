@@ -1,0 +1,30 @@
+version: "3.8"
+
+services:
+  db:
+    image: mysql:8.1
+    container_name: lab5-db
+    environment:
+      MYSQL_ROOT_PASSWORD: gemgemgem
+      MYSQL_DATABASE: lab5db
+    ports:
+      - "3306:3306"
+    volumes:
+      - db_data:/var/lib/mysql
+    command: --default-authentication-plugin=mysql_native_password
+
+  backend:
+    build: .
+    container_name: lab5-backend
+    ports:
+      - "3000:3000"
+    environment:
+      DB_HOST: db
+      DB_USER: root
+      DB_PASSWORD: gemgemgem
+      DB_NAME: lab5db
+    depends_on:
+      - db
+
+volumes:
+  db_data:
