@@ -1,1 +1,147 @@
-<p>"Hello World"</p>
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Lab 5</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+  <form id="textform">
+
+
+    <textarea id="textInput">
+
+
+    </textarea>
+
+
+
+    <div>
+
+      <input id="POST" type="radio" name="method" value="POST" />
+      <label for="POST">POST</label>
+
+      <input id="GET" type="radio" name="method" value="GET" />
+      <label for="GET">GET</label>
+
+      <button type="submit">submit</button>
+
+
+
+
+
+    </div>
+
+  </form>
+
+
+  <button onclick="addPatients()">Add Patients</button>
+
+
+  <div id="output"></div>
+
+
+
+
+  <script>
+
+
+    const API_URL = 'http://localhost:3000/api/database';
+
+    document.getElementById('textform').addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const query = document.getElementById('textInput').value;
+      const getMethod = document.getElementById('GET');
+
+      const postMethod = document.getElementById('POST');
+
+
+      let response;
+
+      try {
+
+        if (getMethod.checked) {
+
+          response = await fetch(`${API_URL}?query=${encodeURIComponent(query)}`);
+
+        } else {
+
+          response = await fetch(`${API_URL}?query=${encodeURIComponent(query)}`, {
+            method: 'POST'
+          });
+        }
+
+
+
+
+
+        const data = await response.json();
+
+        console.log(data);
+
+        if (!response.ok) {
+          // show backend error message
+          output.innerHTML = `<p style="color:red;">Error: ${data.error}</p>`;
+          console.error("Server Error:", data.error);
+        } else {
+          // show result
+          output.innerHTML = `<pre>${JSON.stringify(data, null, 2)}</pre>`;
+          console.log("Success:", data);
+        }
+
+      } catch (error) {
+        console.error('Fetch Error:', error);
+        output.innerHTML = `<p style="color:red;">Network Error: ${error.message}</p>`;
+      }
+
+
+
+
+    })
+
+    async function addPatients() {
+
+      try {
+
+        const response = await fetch(`${API_URL}?query=${encodeURIComponent("addPatients")}`, {
+          method: 'POST'
+        });
+
+        const data = await response.json();
+
+        console.log(data);
+
+        if (!response.ok) {
+          // show backend error message
+          output.innerHTML = `<p style="color:red;">Error: ${data.error}</p>`;
+          console.error("Server Error:", data.error);
+        } else {
+          // show result
+          output.innerHTML = `<pre>${JSON.stringify(data, null, 2)}</pre>`;
+          console.log("Success:", data);
+        }
+
+      } catch (error) {
+        console.error('Fetch Error:', error);
+        output.innerHTML = `<p style="color:red;">Network Error: ${error.message}</p>`;
+      }
+
+
+
+
+    }
+
+
+  </script>
+
+
+
+</body>
+
+</html>
