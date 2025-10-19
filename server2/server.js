@@ -17,6 +17,21 @@ const pool = mysql.createPool({
 const db = pool.promise();
 
 
+const waitForDB = async () => {
+  let connected = false;
+  while (!connected) {
+    try {
+      await db.execute('SELECT 1');
+      connected = true;
+    } catch {
+      console.log('Waiting for MySQL...');
+      await new Promise(r => setTimeout(r, 1000));
+    }
+  }
+};
+
+
+
 async function createTable() {
   try {
     await db.execute(`
@@ -64,27 +79,20 @@ const handleOptions = (req, res) => {
 
 
 
+
+
 const SQLQuery = async (query) => {
 
   try {
+
     const response = await db.execute(query);
 
-    if (response) {
-      return response;
-    } else {
-      throw new Error("unable to process the query");
-    }
+    return response;
+
   } catch (err) {
-    console.log(err.message);
-    res.writeHead(400, {
-      'Content-Type': 'application/json',
-      'Access-Control-Allow-Origin': '*'
-    });
-    res.end(JSON.stringify({ error: err.message }));
+    throw new Error(err.message);
   }
 };
-
-
 
 
 
@@ -238,9 +246,10 @@ const server = http.createServer((req, res) => {
 
 
 
-server.listen(PORT, () => {
+server.listen(PORT, async () => {
   console.log(`API Server is listening to port ${PORT}`);
-  createTable();
+  await waitForDB()
+  await createTable();
 });
 
 
